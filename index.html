@@ -5,345 +5,248 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Storage V2+ DApp – Public Guest-Book & Tip-Jar</title>
   <style>
-    /* -----  same visual theme you already had  ----- */
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;padding:20px;color:#333}
-    .container{max-width:980px;margin:0 auto;background:#fff;border-radius:15px;box-shadow:0 20px 40px rgba(0,0,0,.1);overflow:hidden}
-    .header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:30px;text-align:center}
-    .header h1{font-size:2.5em;margin-bottom:10px}
-    .header p{opacity:.9;font-size:1.1em}
-    .content{padding:30px}
-    .section{background:#f8f9fa;border-radius:10px;padding:25px;margin-bottom:20px;border-left:4px solid #667eea}
-    .section h3{margin-bottom:15px;font-size:1.3em}
-    .info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px;margin-bottom:20px}
-    .info-item{background:#fff;padding:15px;border-radius:8px;border:1px solid #e9ecef}
-    .info-item strong{color:#667eea;display:block;margin-bottom:5px}
-    .info-item span{word-break:break-all;font-family:'Courier New',monospace;font-size:.9em}
-    input{width:100%;padding:12px 15px;border:2px solid #e9ecef;border-radius:8px;font-size:16px;margin-bottom:15px;transition:border-color .3s}
-    input:focus{outline:none;border-color:#667eea}
-    button{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;border:none;padding:12px 25px;border-radius:8px;font-size:16px;cursor:pointer;transition:transform .2s,box-shadow .2s;margin-right:10px;margin-bottom:10px}
-    button:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(102,126,234,.4)}
-    button:disabled{background:#6c757d;cursor:not-allowed;transform:none;box-shadow:none}
-    .status{padding:12px;border-radius:8px;margin-top:15px;font-weight:500}
-    .success{background:#d4edda;color:#155724;border:1px solid #c3e6cb}
-    .error{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb}
-    .info{background:#d1ecf1;color:#0c5460;border:1px solid #bee5eb}
-    .warning{background:#fff3cd;color:#856404;border:1px solid #ffeaa7}
-    .event-item{background:#fff;border:1px solid #e9ecef;border-radius:8px;padding:15px;margin-bottom:10px}
-    .event-item h5{color:#667eea;margin-bottom:10px}
-    .wallet-buttons{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:15px}
-    .wallet-btn{background:#fff;color:#333;border:2px solid #667eea;padding:10px 20px;border-radius:8px;font-size:14px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:8px}
-    .wallet-btn:hover{background:#667eea;color:#fff;transform:translateY(-1px)}
-    .wallet-btn.connected{background:#d4edda;border-color:#28a745;color:#155724}
-    .footer{background:#f8f9fa;padding:20px;text-align:center;color:#6c757d;border-top:1px solid #e9ecef}
-    @media(max-width:768px){.wallet-buttons{flex-direction:column}}
-    /* ----  new tiny helpers  ---- */
-    .mono{font-family:'Courier New',monospace}
-    .tip-success{background:#d4edda;color:#155724;padding:8px;border-radius:6px;margin-top:8px;font-size:.9em}
+    :root {
+      --primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --primary solidarity: #667eea;
+      --error:bg: #f8d7da;
+      --error:text: #721c24;
+      --warning:bg: #fff3cd;
+      --warning:text: #856404;
+      --info:bg: #d1ecf1;
+      --info:text: #0c5460;
+      --success.bg: #d4edda;
+      --success.text: #155724;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--primary);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",.system-ui,"Apple Color Emoji","Segoe UI Emoji",sans-serif;min-height:100vh;padding:20px}
+    .container{max-width:920px;margin:auto;background:#fff;border-radius:15px;overflow:hidden;box-shadow:0 0 40px rgba(0,0,0,0.07)}
+    .header{background:var(--primary);padding:30px;color:#fff;text-align:center}
+    .header h1{font-size:2.2em}
+    .content,.section,.info-item,.event-item{
+      border-radius:10px}
+    .section{background:#f8f9fa;padding:20px;margin-bottom:20px;border-left:3px solid var(--primary solidarity)}
+    .wallet-buttons{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+    .wallet-btn{padding:9px 15px;border-radius:8px;background:#fff;color:#555;border:1px solid #ddd}
+    .wallet-btn:hover{box-shadow:0 2px 8px rgba(0,0,0,.08)}
+    input{width:100%;padding:12px 15px;border:1px solid #ddd;border-radius:8px;font-size:15px;margin-bottom:15px}
+    button{background:var(--primary);color:#fff;border:none;padding:12px 25px;border-radius:8px;font-size:14px;cursor:pointer}
+    button:hover{box-shadow:0 5px 15px rgba(100,120,200,0.3);transform:translateY(-1px)}
+    button:disabled{opacity:0.7;cursor:not-allowed}
+    [contenteditable="true"] {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 3rem;
+      outline: none;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h1>🚀 Storage V2+ DApp</h1>
-      <p>Public Guest-Book + Owner Store + Tip-Jar on GIWA Sepolia</p>
+      <h1>Storage V2+</h1>
+      <p style="font-size:1.1em">Decentralized guestbook + owner storage + tip-jar.</p>
     </div>
 
     <div class="content">
-      <!-- ===== 1.  LIB / NETWORK BAR  ===== -->
-      <div class="library-status" id="libraryStatus">📚 Initialising …</div>
-      <div class="network-info">
-        <strong>⚠️  Make sure you are on GIWA Sepolia (chain 91342)</strong>
-      </div>
 
-      <!-- ===== 2.  CONTRACT INFO  ===== -->
+      <!-- 1. Connect section -->
       <div class="section">
-        <h3>📊 Contract Info</h3>
-        <div class="info-grid">
-          <div class="info-item"><strong>Contract:</strong><span id="contractAddr"></span></div>
-          <div class="info-item"><strong>Stored Number:</strong><span id="currentValue">-</span></div>
-          <div class="info-item"><strong>Owner:</strong><span id="contractOwner">-</span></div>
-          <div class="info-item"><strong>You:</strong><span id="userAddress">Not connected</span></div>
-          <div class="info-item"><strong>Network:</strong><span id="networkName">-</span></div>
-          <div class="info-item"><strong>Wallet:</strong><span id="connectedWallet">-</span></div>
+        <div style="margin-bottom:20px">
+          <div><strong>Full contract address</strong><br>
+            <span id="contractAddr" class="monospace"></span>
+          </div>
         </div>
 
-        <h4>Connect:</h4>
         <div class="wallet-buttons">
-          <button class="wallet-btn" onclick="connectWallet('auto')">🔗 Auto-detect</button>
-          <button class="wallet-btn" onclick="connectWallet('metamask')">🦊 MetaMask</button>
-          <button class="wallet-btn" onclick="connectWallet('rabby')">🐰 Rabby</button>
-          <button class="wallet-btn" onclick="connectWallet('coinbase')">🔵 Coinbase</button>
+          <button class="wallet-btn" onclick="connectWallet('auto')">
+            <img width="18px" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.38.0/svg/icon/eth.svg" /> Connect Wallet
+          </button>
         </div>
-        <button id="refreshBtn" onclick="refreshData()" disabled>🔄 Refresh</button>
-        <button id="disconnectBtn" onclick="disconnectWallet()" disabled>❌ Disconnect</button>
       </div>
 
-      <!-- ===== 3.  OWNER ONLY: STORE  ===== -->
-      <div class="section">
-        <h3>👑 Owner Store</h3>
-        <p style="color:#6c757d;font-size:.95em">Only the contract owner can change the stored number.</p>
-        <input id="storeInput" type="number" placeholder="42">
-        <button id="storeBtn" onclick="storeValue()" disabled>💾 Store</button>
-        <div id="storeStatus"></div>
+      <!-- 2. Core features -->
+      <div class="section" id="featuresSection" style="display:none">
+
+        <!-- Owner-only -->
+        <div class="section" style="background:#f0f7ff">
+          <h2>Storage Functions (Owner Only)</h2>
+          <input id="storeInput" placeholder="eg. 3693">
+          <button id="storeBtn" onclick="storeValue()">Store Number</button>
+        </div>
+
+        <!-- Public -->
+        <div class="section" style="background:#fff">
+          <div>
+            <h2>📝 Public Guestbook</h2>
+            <div contenteditable="true" id="guestMessage" name="guestMessage" placeholder="Type your message..." style="min-height:4rem;padding:1rem"></div>
+            <button id="guestBtn" onclick="signGuestbook()" disabled>✍️ Sign Guestbook</button>
+          </div>
+          <div id="guestList" style="margin-top:20px"></div>
+        </div>
+
+        <div class="section" style="background:#ffe2e5">
+          <h2>☕ Tip-Jar</h2>
+          <input id="tipAmount" placeholder="ETH amount (e.g. 0.001)">
+          <button id="tipBtn" onclick="sendTip()" disabled>💸 Send Tip</button>
+        </div>
+
+        <!-- Admin -->
+        <div class="section" style="background:#f0f7ff">
+          <h2>Owner Tools</h2>
+          <input id="newOwnerInput" placeholder="0x…">
+          <button onclick="transferOwnership()" id="transferBtn" disabled>🏷️ Transfer Ownership</button>
+        </div>
+
       </div>
 
-      <!-- ===== 4.  PUBLIC GUEST-BOOK  ===== -->
-      <div class="section">
-        <h3>📝 Public Guest-Book (free)</h3>
-        <p style="color:#6c757d;font-size:.95em">Leave a permanent on-chain message. Costs only gas.</p>
-        <input id="guestMessage" maxlength="280" placeholder="Your on-chain message …">
-        <button id="guestBtn" onclick="signGuestbook()" disabled>✍️ Sign Guest-Book</button>
-        <div id="guestStatus"></div>
-        <div id="guestList" style="margin-top:15px"></div>
-      </div>
-
-      <!-- ===== 5.  TIP-JAR  ===== -->
-      <div class="section">
-        <h3>☕ Tip-Jar (supports owner)</h3>
-        <p style="color:#6c757d;font-size:.95em">Send any amount of ETH to the contract owner.</p>
-        <input id="tipAmount" type="number" step="0.001" min="0.001" placeholder="0.01">
-        <button id="tipBtn" onclick="sendTip()" disabled>💰 Send Tip</button>
-        <div id="tipStatus"></div>
-      </div>
-
-      <!-- ===== 6.  TRANSFER OWNERSHIP  ===== -->
-      <div class="section">
-        <h3>🚪 Transfer Ownership</h3>
-        <input id="newOwnerInput" placeholder="0x…">
-        <button id="transferBtn" onclick="transferOwnership()" disabled>👑 Transfer</button>
-        <div id="transferStatus"></div>
-      </div>
-
-      <!-- ===== 7.  EVENTS  ===== -->
-      <div class="section">
-        <h3>📜 Recent Events</h3>
-        <button id="eventsBtn" onclick="getEvents()" disabled>Load</button>
-        <div id="events"></div>
-      </div>
-
-    </div>
-    <div class="footer">
-      <p>Built with ❤️ on GIWA Sepolia | Contract: <span class="mono" id="footerAddr"></span></p>
     </div>
   </div>
 
-  <!-- ==============================  SCRIPT  ============================== -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2"></script>
   <script>
-    /* ==========  CONFIG  ========== */
-    const MY_CONTRACT = "0x30bDe02387EA7967b8C75a5189a1b2A61F8F4e22"; // << yours
-    const NEW_OWNER  = "0xD310D9c919aA40d9E2be8980272a498631dd1449"; // << yours
-    const GIWA_CHAIN = 91342;
-    const GIWA_HEX   = "0x164ce";
-    const GIWA_RPC   = "https://sepolia-rpc.giwa.io";
-    const EXPLORER   = "https://sepolia-explorer.giwa.io";
-
-    /* ==========  ABI  ========== */
+    // Configuration
+    const CONTRACT_ADDRESS = "0x30bDe02387EA7967b8C75a5189a1b2A61F8F4e22"; // Replace with your contract
+    const GIWA_CHAIN_ID = 91342;
     const ABI = [
-  // ----  storage ----
-  "function store(uint256 num)",
-  "function retrieve() view returns (uint256)",
-  "function number() view returns (uint256)",
-  "function owner() view returns (address)",
-  "function transferOwnership(address newOwner)",
-  // ----  guest-book ----
-  "function signGuestbook(string calldata message)",
-  "function guestbook(uint256 idx) view returns (address signer, string message, uint256 ts)",
-  "function guestbookLength() view returns (uint256)",
-  // ----  tips ----
-  "function withdrawTips()",
-  // ----  events ----
-  "event NumberStored(uint256 indexed newValue, address indexed setter, uint256 timestamp)",
-  "event GuestSigned(address indexed signer, string message, uint256 indexed ts)",
-  "event TipReceived(address indexed from, uint256 amount)"
-];
-
-    /* ==========  GLOBALS  ========== */
-    let provider, signer, contract, userAddress, isConnected=false, connectedWallet='';
-
-    /* ==========  BOOTSTRAP  ========== */
-    document.addEventListener('DOMContentLoaded', async()=>{
-      document.getElementById('contractAddr').textContent = MY_CONTRACT;
-      document.getElementById('footerAddr').textContent   = MY_CONTRACT;
-      try{
-        await loadEthers();
-        document.getElementById('libraryStatus').innerHTML = '✅ Ethers.js ready';
-        document.getElementById('libraryStatus').className = 'status success';
-        if (await isAnyWalletConnected()) await connectWallet('auto');
-      }catch(e){
-        document.getElementById('libraryStatus').innerHTML = '❌ Could not load Ethers';
-        document.getElementById('libraryStatus').className = 'status error';
-      }
-    });
-
-    /* ----------  CDN FALLBACK  ---------- */
-    const ethersCDN=[
-      'https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js',
-      'https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js',
-      'https://unpkg.com/ethers@5.7.2/dist/ethers.umd.min.js',
-      'https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js'
+      // Storage features
+      "function store(uint256 num)",
+      "function retrieve() view returns (uint256)",
+      "function transferOwnership(address newOwner)",
+      // Guestbook features
+      "function signGuestbook(string calldata message)",
+      "function getGuestbookEntry(uint256 idx) view returns (string memory)",
+      "function getGuestbookLength() view returns (uint256)",
+      // Tip features
+      "function withdrawTips()",
+      // Viewers
+      "event NumberStored(uint256 newValue, address setter, uint256 timestamp)",
+      "event GuestbookSigned(address from, string message, uint256 timestamp)"
     ];
-    let cdnIndex=0;
-    async function loadEthers(){
-      if (typeof window.ethers!=='undefined') return;
-      return new Promise((res,rej)=>{
-        const script=document.createElement('script');
-        script.src=ethersCDN[cdnIndex];
-        script.onload=()=> (window.ethers?res():rej());
-        script.onerror=()=>{cdnIndex++; cdnIndex<ethersCDN.length?loadEthers().then(res).catch(rej):rej();};
-        document.head.appendChild(script);
-        setTimeout(()=>{if(typeof window.ethers==='undefined') rej();},5000);
-      });
-    }
 
-    /* ----------  WALLET  ---------- */
-    async function connectWallet(type){
-      if (typeof window.ethereum==='undefined') return showStatus('No wallet found','error','storeStatus');
-      try{
-        await window.ethereum.request({method:'eth_requestAccounts'});
-        provider=new ethers.providers.Web3Provider(window.ethereum);
-        signer=provider.getSigner();
-        userAddress=await signer.getAddress();
-        connectedWallet=detectWallet();
-        const net=await provider.getNetwork();
-        document.getElementById('networkName').textContent=net.chainId==GIWA_CHAIN?'GIWA Sepolia':'Wrong network';
-        if(net.chainId!==GIWA_CHAIN){await switchToGiwa();return;}
-        contract=new ethers.Contract(MY_CONTRACT,ABI,provider);
-        isConnected=true;
-        document.getElementById('userAddress').textContent=userAddress;
-        document.getElementById('connectedWallet').textContent=connectedWallet;
-        enableAll();
-        await refreshData();
-        showStatus(`${connectedWallet} connected`,`success`,'storeStatus');
-      }catch(e){showStatus(e.message,'error','storeStatus');}
-    }
-    function detectWallet(){
-      const e=window.ethereum;
-      if(e.isRabby)return'Rabby';if(e.isMetaMask)return'MetaMask';if(e.isCoinbaseWallet)return'Coinbase';return'Browser';
-    }
-    async function switchToGiwa(){
-      try{await window.ethereum.request({method:'wallet_switchEthereumChain',params:[{chainId:GIWA_HEX}]});}
-      catch(e){
-        if(e.code===4902){
-          await window.ethereum.request({method:'wallet_addEthereumChain',params:[{
-            chainId:GIWA_HEX,chainName:'GIWA Sepolia',nativeCurrency:{name:'ETH',symbol:'ETH',decimals:18},
-            rpcUrls:[GIWA_RPC],blockExplorerUrls:[EXPLORER]
-          }]});
+    // UI State
+    let provider, signer, contract, accountAddress;
+
+    // Connect wallet
+    async function connectWallet() {
+      if (window.ethereum) {
+        try {
+          provider = new ethers.providers.Web3Provider(window.ethereum);
+          const net = await provider.getNetwork();
+
+          // Check network
+          if (net.chainId !== GIWA_CHAIN_ID) {
+            alert(`Please switch to GIWA Sepolia Testnet (Chain ID: ${GIWA_CHAIN_ID})`);
+            return;
+          }
+
+          // Connect wallet
+          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+          accountAddress = ethers.utils.getAddress(accounts[0]);
+          signer = provider.getSigner();
+
+          // Setup contract
+          contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+
+          // Update UI
+          document.getElementById('contractAddr').textContent = CONTRACT_ADDRESS;
+          document.getElementById('featuresSection').style.display = "block";
+          loadGuestbook();
         }
+        catch (err) {
+          console.error(err);
+          alert(err.message || 'Error connecting wallet');
+        }
+      } else {
+        alert('Ethereum provider not detected');
       }
-      location.reload();
-    }
-    function enableAll(){
-      ['refreshBtn','disconnectBtn','storeBtn','guestBtn','tipBtn','transferBtn','eventsBtn'].forEach(id=>document.getElementById(id).disabled=false);
-    }
-    async function disconnectWallet(){
-      provider=signer=contract=null;isConnected=false;userAddress='';connectedWallet='';
-      document.getElementById('userAddress').textContent='Not connected';
-      document.getElementById('connectedWallet').textContent='-';
-      ['refreshBtn','disconnectBtn','storeBtn','guestBtn','tipBtn','transferBtn','eventsBtn'].forEach(id=>document.getElementById(id).disabled=true);
-    }
-    async function isAnyWalletConnected(){
-      if(!window.ethereum)return false;
-      const a=await window.ethereum.request({method:'eth_accounts'});return a.length>0;
     }
 
-    /* ----------  REFRESH  ---------- */
-    async function refreshData(){
-      if(!isConnected||!contract)return;
-      try{
-        const[num,own]=await Promise.all([contract.number(),contract.owner()]);
-        document.getElementById('currentValue').textContent=num.toString();
-        document.getElementById('contractOwner').textContent=own;
-        document.getElementById('isOwner').textContent=(userAddress&&userAddress.toLowerCase()===own.toLowerCase())?'Yes':'No';
-      }catch(e){showStatus(e.message,'error','storeStatus');}
-    }
+    // Store number (owner only)
+    async function storeValue() {
+      const value = document.getElementById("storeInput").value.trim();
 
-    /* ----------  OWNER STORE  ---------- */
-    async function storeValue(){
-      if(!isConnected||!signer)return showStatus('Connect first','error','storeStatus');
-      const v=document.getElementById('storeInput').value.trim();if(!v||isNaN(v))return showStatus('Invalid number','error','storeStatus');
-      try{
-        const tx=await contract.connect(signer).store(v);showStatus(`Tx sent: ${tx.hash}`,'info','storeStatus');
-        await tx.wait();showStatus('Stored ✅','success','storeStatus');
-        document.getElementById('storeInput').value='';await refreshData();
-      }catch(e){showStatus(e.reason||e.message,'error','storeStatus');}
-    }
+      try {
+        if (!contract) throw Error("Connect wallet first");
 
-    /* ----------  GUEST-BOOK  ---------- */
-    async function signGuestbook(){
-      if(!isConnected||!signer)return showStatus('Connect first','error','guestStatus');
-      const msg=document.getElementById('guestMessage').value.trim();if(!msg)return showStatus('Empty message','error','guestStatus');
-      try{
-        const tx=await contract.connect(signer).signGuestbook(msg);showStatus(`Tx sent: ${tx.hash}`,'info','guestStatus');
-        await tx.wait();showStatus('Message immortalised ✅','success','guestStatus');
-        document.getElementById('guestMessage').value='';await loadGuestbook();
-      }catch(e){showStatus(e.reason||e.message,'error','guestStatus');}
-    }
-    async function loadGuestbook(){
-      if(!contract)return;
-      try{
-        const len=await contract.guestbookLength();
-        let html='';const lim=Math.min(len,10);
-        for(let i=len-lim;i<len;i++){
-          const g=await contract.guestbook(i);
-          html+=`<div class="event-item"><strong>${g.signer}</strong><br>${g.message}<br><small>${new Date(g.ts*1000).toLocaleString()}</small></div>`;
+        // Optional: Check if user is contract owner
+        const owner = await contract.callStatic.owner();
+        if (owner.toLowerCase() !== accountAddress.toLowerCase()) {
+          throw Error("Only contract owner can store values");
         }
-        document.getElementById('guestList').innerHTML=html||'<div class="status info">No messages yet</div>';
-      }catch(e){}
+
+        // Perform transaction
+        const tx = await contract.store(ethers.BigNumber.from(value));
+        await tx.wait();
+        alert("Transaction confirmed");
+      }
+      catch (err) {
+        alert(err.message || "Transaction failed");
+      }
     }
 
-    /* ----------  TIP-JAR  ---------- */
-    async function sendTip(){
-      if(!isConnected||!signer)return showStatus('Connect first','error','tipStatus');
-      const val=document.getElementById('tipAmount').value;if(!val||+val<=0)return showStatus('Invalid amount','error','tipStatus');
-      try{
-        const tx=await signer.sendTransaction({to:MY_CONTRACT,value:ethers.utils.parseEther(val)});
-        showStatus(`Tip tx sent: ${tx.hash}`,'info','tipStatus');
-        await tx.wait();showStatus(`☕ Thank you for ${val} ETH!`,'success','tipStatus');
-        document.getElementById('tipAmount').value='';
-      }catch(e){showStatus(e.reason||e.message,'error','tipStatus');}
+    // Guestbook functions
+    async function signGuestbook() {
+      const message = document.getElementById('guestMessage').innerText.trim();
+
+      if (!message.length) {
+        alert("Please enter a message");
+        return;
+      }
+
+      try {
+        const tx = await contract.signGuestbook(message);
+        await tx.wait();
+        alert("Your message was saved on-chain!");
+        document.getElementById('guestMessage').innerText = '';
+        await loadGuestbook();
+      }
+      catch (err) {
+        alert(`Error: ${err.message}`);
+      }
     }
 
-    /* ----------  TRANSFER OWNERSHIP  ---------- */
-    async function transferOwnership(){
-      if(!isConnected||!signer)return showStatus('Connect first','error','transferStatus');
-      const addr=document.getElementById('newOwnerInput').value.trim();if(!addr||!ethers.utils.isAddress(addr))return showStatus('Bad address','error','transferStatus');
-      if(!confirm(`Transfer ownership to ${addr}?`))return;
-      try{
-        const tx=await contract.connect(signer).transferOwnership(addr);showStatus(`Tx sent: ${tx.hash}`,'info','transferStatus');
-        await tx.wait();showStatus('Ownership transferred ✅','success','transferStatus');
-        document.getElementById('newOwnerInput').value='';await refreshData();
-      }catch(e){showStatus(e.reason||e.message,'error','transferStatus');}
+    async function loadGuestbook() {
+      try {
+        const length = await contract.getGuestbookLength();
+        let html = "<h3>Latest Messages</h3>";
+
+        for (let i = length-1; i > length-1-5 && i >= 0; i--) { // Show last 5 messages
+          const message = await contract.getGuestbookEntry(i);
+          html += "<div style='border:1px solid #eee;padding: 0.8rem;'>" + message + "</div>";
+        }
+
+        document.getElementById('guestList').innerHTML = html;
+      }
+      catch { /* Ignore errors - might happen if not connected */ }
     }
 
-    /* ----------  EVENTS  ---------- */
-    async function getEvents(){
-      if(!contract)return;
-      try{
-        const stFilter=contract.filters.NumberStored();
-        const gbFilter=contract.filters.GuestSigned();
-        const tipFilter=contract.filters.TipReceived();
-        const [st,gb,tip]=await Promise.all([
-          contract.queryFilter(stFilter,-500),
-          contract.queryFilter(gbFilter,-500),
-          contract.queryFilter(tipFilter,-500)
-        ]);
-        const all=[...st.map(x=>({...x,kind:'Store'})),...gb.map(x=>({...x,kind:'Guest'})),...tip.map(x=>({...x,kind:'Tip'}))];
-        all.sort((a,b)=>b.blockNumber-a.blockNumber);
-        let html='';all.slice(0,10).forEach(e=>{
-          if(e.kind==='Store') html+=`<div class="event-item"><h5>Store</h5><p>Value: ${e.args.newValue}</p><p>By: ${e.args.setter}</p><p>Block: ${e.blockNumber}</p></div>`;
-          if(e.kind==='Guest') html+=`<div class="event-item"><h5>Guest</h5><p>"${e.args.message}"</p><p>By: ${e.args.signer}</p><p>Block: ${e.blockNumber}</p></div>`;
-          if(e.kind==='Tip') html+=`<div class="event-item"><h5>Tip</h5><p>${ethers.utils.formatEther(e.args.amount)} ETH</p><p>From: ${e.args.from}</p><p>Block: ${e.blockNumber}</p></div>`;
+    // Tip function
+    async function sendTip() {
+      const amount = document.getElementById('tipAmount').value.trim();
+
+      if (!amount || isNaN(amount) || Number(amount) <= 0) {
+        alert("Enter a valid ETH amount");
+        return;
+      }
+
+      try {
+        // Send ETH directly to contract acct
+        const tx = await signer.sendTransaction({
+          to: CONTRACT_ADDRESS,
+          value: ethers.utils.parseEther(amount)
         });
-        document.getElementById('events').innerHTML=html||'<div class="status info">No recent events</div>';
-      }catch(e){showStatus(e.message,'error','events');}
+
+        alert(`Tip sent! TxID: ${tx.hash}`);
+      }
+      catch (err) {
+        alert("Error sending tip: " + err.message);
+      }
     }
 
-    /* ----------  HELPERS  ---------- */
-    function showStatus(msg,type,el){const e=document.getElementById(el);if(e)e.innerHTML=`<div class="status ${type}">${msg}</div>`;}
-    window.ethereum?.on('accountsChanged',()=>location.reload());
-    window.ethereum?.on('chainChanged',()=>location.reload());
-    setInterval(()=>{if(isConnected)refreshData();},30000);
+    // Initialize UI
+    document.addEventListener('DOMContentLoaded', async () => {
+      document.getElementById('contractAddr').textContent = CONTRACT_ADDRESS;
+    });
   </script>
 </body>
 </html>
