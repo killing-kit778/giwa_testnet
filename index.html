@@ -140,24 +140,23 @@
 
     /* ==========  ABI  ========== */
     const ABI = [
-      // ----  storage ----
-      "function store(uint256 num)",
-      "function retrieve() view returns (uint256)",
-      "function number() view returns (uint256)",
-      "function owner() view returns (address)",
-      "function transferOwnership(address newOwner)",
-      // ----  guest-book ----
-      "function signGuestbook(string calldata message)",
-      "function guestbook(uint256 idx) view returns (address signer, string memory message, uint256 ts)",
-      "function guestbookLength() view returns (uint256)",
-      // ----  tip-jar ----
-      "receive() external payable",
-      "function withdrawTips()",
-      // ----  events ----
-      "event NumberStored(uint256 indexed newValue, address indexed setter, uint256 timestamp)",
-      "event GuestSigned(address indexed signer, string message, uint256 indexed ts)",
-      "event TipReceived(address indexed from, uint256 amount)"
-    ];
+  // ----  storage ----
+  "function store(uint256 num)",
+  "function retrieve() view returns (uint256)",
+  "function number() view returns (uint256)",
+  "function owner() view returns (address)",
+  "function transferOwnership(address newOwner)",
+  // ----  guest-book ----
+  "function signGuestbook(string calldata message)",
+  "function guestbook(uint256 idx) view returns (address signer, string message, uint256 ts)",
+  "function guestbookLength() view returns (uint256)",
+  // ----  tips ----
+  "function withdrawTips()",
+  // ----  events ----
+  "event NumberStored(uint256 indexed newValue, address indexed setter, uint256 timestamp)",
+  "event GuestSigned(address indexed signer, string message, uint256 indexed ts)",
+  "event TipReceived(address indexed from, uint256 amount)"
+];
 
     /* ==========  GLOBALS  ========== */
     let provider, signer, contract, userAddress, isConnected=false, connectedWallet='';
