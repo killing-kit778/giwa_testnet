@@ -17,7 +17,7 @@ let isOwner = false;
 
 // Initialize
 async function init() {
-  if (typeof window.ethers === "undefined") {
+  if (typeof ethers === "undefined") {
     document.getElementById("status").innerText = "❌ Ethers.js failed to load!";
     return;
   }
@@ -54,7 +54,15 @@ async function connectWallet() {
     const userAddress = await signer.getAddress();
 
     document.getElementById("user-address").textContent = userAddress;
-    document.getElementById("connect-btn").textContent = "🔄 Connected";
+    
+    // Safety check: Only update if button exists
+    const connectBtn = document.getElementById("connect-btn");
+    if (connectBtn) {
+      connectBtn.textContent = "🔄 Connected";
+      connectBtn.disabled = true;  // Optional: Disable after connect
+    } else {
+      console.warn("Connect button not found — skipping UI update");
+    }
 
     // Setup contract
     contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
