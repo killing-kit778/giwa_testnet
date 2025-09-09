@@ -1,5 +1,5 @@
 // Configuration
-const CONTRACT_ADDRESS = "0x61123b7a22d2f1b8c2c4becc8333e8e4209cce28";
+const CONTRACT_ADDRESS = "0x30bDe02387EA7967b8C75a5189a1b2A61F8F4e22";  // Your correct address
 const GIWA_SEPOLIA_CHAIN_ID = 91342;
 
 // Replace with your contract ABI — include retrieve, store, owner, transferOwnership, NumberStored event
