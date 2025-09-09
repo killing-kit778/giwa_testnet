@@ -1,19 +1,22 @@
 // Configuration
-const CONTRACT_ADDRESS = "0x30bDe02387EA7967b8C75a5189a1b2A61F8F4e22";  // Your correct address
+const CONTRACT_ADDRESS = "0x30bDe02387EA7967b8C75a5189a1b2A61F8F4e22";  // Your correct contract address
 const GIWA_SEPOLIA_CHAIN_ID = 91342;
 
-// Replace with your contract ABI — include retrieve, store, owner, transferOwnership, NumberStored event
+// Minimal ABI for your original Storage contract (no owner or events)
 const ABI = [
-  "function retrieve() view returns (uint256)",
   "function store(uint256 num)",
-  "function owner() view returns (address)",
-  "function transferOwnership(address newOwner)",
-  "event NumberStored(uint256 num)"
+  "function retrieve() public view returns (uint256)"
 ];
 
 let contract;
 let signer;
-let isOwner = false;
+let isOwner = false;  // We'll fake this for now since original contract has no owner
+
+// Helper: Safe text update
+function setText(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = value;
+}
 
 // Initialize
 async function init() {
@@ -53,15 +56,12 @@ async function connectWallet() {
     signer = await provider.getSigner();
     const userAddress = await signer.getAddress();
 
-    document.getElementById("user-address").textContent = userAddress;
+    setText("user-address", userAddress);
     
-    // Safety check: Only update if button exists
     const connectBtn = document.getElementById("connect-btn");
     if (connectBtn) {
       connectBtn.textContent = "🔄 Connected";
-      connectBtn.disabled = true;  // Optional: Disable after connect
-    } else {
-      console.warn("Connect button not found — skipping UI update");
+      connectBtn.disabled = true;
     }
 
     // Setup contract
@@ -81,9 +81,9 @@ async function connectWallet() {
 async function updateNetworkInfo(provider) {
   try {
     const network = await provider.getNetwork();
-    document.getElementById("network-info").textContent = `Chain ID: ${network.chainId}`;
+    setText("network-info", `Chain ID: ${network.chainId}`);
   } catch (err) {
-    document.getElementById("network-info").textContent = "Unknown";
+    setText("network-info", "Unknown");
   }
 }
 
@@ -91,23 +91,19 @@ async function updateNetworkInfo(provider) {
 async function loadContractData(userAddress) {
   try {
     const currentValue = await contract.retrieve();
-    const contractOwner = await contract.owner();
 
-    document.getElementById("contract-address").textContent = contract.target;
-    document.getElementById("current-value").textContent = currentValue.toString();
-    document.getElementById("contract-owner").textContent = contractOwner;
+    setText("contract-address", CONTRACT_ADDRESS);
+    setText("current-value", currentValue.toString());
+    setText("contract-owner", "Not applicable (original contract has no owner)");  // Since no owner function
+    setText("is-owner", "Yes (no restrictions) ✅");  // Original contract allows anyone
 
-    isOwner = (userAddress.toLowerCase() === contractOwner.toLowerCase());
-    document.getElementById("is-owner").textContent = isOwner ? "Yes ✅" : "No ❌";
-    document.getElementById("is-owner").style.color = isOwner ? "green" : "red";
-
-    // Enable/Disable buttons
-    document.getElementById("store-btn").disabled = !isOwner;
-    document.getElementById("transfer-btn").disabled = !isOwner;
+    // Enable buttons (original contract has no restrictions)
+    document.getElementById("store-btn").disabled = false;
+    document.getElementById("transfer-btn").disabled = true;  // Disable since not supported
 
   } catch (err) {
     console.error("Load error:", err);
-    alert("Error loading contract data. Is it verified?");
+    alert("Error loading contract data: " + (err.reason || err.message) + ". Check address/ABI/network.");
   }
 }
 
@@ -117,36 +113,24 @@ async function retrieve() {
     const value = await contract.retrieve();
     alert("retrieve() returned: " + value.toString());
   } catch (err) {
-    alert("Error: " + err.message);
+    alert("Error: " + (err.reason || err.message));
   }
 }
 
 async function callNumber() {
-  // If your contract uses public var `number`, this calls it directly
-  try {
-    const value = await contract.number();
-    alert("number (state var) = " + value.toString());
-  } catch (err) {
-    alert("Error: " + err.message);
-  }
+  alert("Not supported in original contract. Deploy V2 for this.");
 }
 
 async function getOwner() {
-  try {
-    const owner = await contract.owner();
-    alert("Current owner: " + owner);
-  } catch (err) {
-    alert("Error: " + err.message);
-  }
+  alert("Not supported in original contract. Deploy V2 for this.");
 }
 
 async function getContractInfo() {
   try {
     const value = await contract.retrieve();
-    const owner = await contract.owner();
-    alert(`Contract Info:\nValue: ${value}\nOwner: ${owner}`);
+    alert(`Contract Info:\nValue: ${value}\nOwner: Not applicable`);
   } catch (err) {
-    alert("Error: " + err.message);
+    alert("Error: " + (err.reason || err.message));
   }
 }
 
@@ -167,67 +151,19 @@ async function storeValue() {
     await loadContractData(await signer.getAddress());
     input.value = "";
   } catch (err) {
-    if (err.message.includes("user rejected")) {
-      document.getElementById("status").innerText = "❌ User denied transaction.";
-    } else {
-      document.getElementById("status").innerText = "❌ Transaction failed: " + err.reason;
-    }
+    document.getElementById("status").innerText = "❌ Transaction failed: " + (err.reason || err.message);
     console.error(err);
   }
 }
 
-// Transfer Ownership
+// Transfer Ownership (Disabled for original contract)
 async function transferOwnership() {
-  const input = document.getElementById("new-owner-input");
-  const address = input.value.trim();
-
-  if (!ethers.isAddress(address)) {
-    alert("Invalid Ethereum address");
-    return;
-  }
-
-  if (confirm(`Transfer ownership to ${address}? This cannot be undone!`)) {
-    try {
-      const tx = await contract.transferOwnership(address);
-      document.getElementById("status").innerText = "⏳ Transfer pending...";
-      await tx.wait();
-      document.getElementById("status").innerText = "✅ Ownership transferred!";
-      await loadContractData(await signer.getAddress());
-      input.value = "";
-    } catch (err) {
-      document.getElementById("status").innerText = "❌ Transfer failed: " + err.reason;
-      console.error(err);
-    }
-  }
+  alert("Not supported in original contract. Deploy V2 for ownership features.");
 }
 
-// Load Events
+// Load Events (Disabled for original contract)
 async function loadEvents() {
-  try {
-    const filter = contract.filters.NumberStored();
-    const logs = await contract.queryFilter(filter, -100); // last 100 blocks
-
-    const list = document.getElementById("events-list");
-    list.innerHTML = "";
-
-    if (logs.length === 0) {
-      list.innerHTML = "<li>No recent events found.</li>";
-      return;
-    }
-
-    logs.reverse(); // newest first
-    logs.forEach(log => {
-      const num = log.args[0].toString();
-      const txHash = log.transactionHash;
-      const li = document.createElement("li");
-      li.innerHTML = `Value stored: <b>${num}</b> 
-        <a href="https://sepolia-explorer.giwa.io/tx/${txHash}" target="_blank" style="float:right;">🔍</a>`;
-      list.appendChild(li);
-    });
-  } catch (err) {
-    console.error("Event load error:", err);
-    alert("Could not load events: " + err.message);
-  }
+  alert("Not supported in original contract. Deploy V2 for events.");
 }
 
 // Disconnect Wallet
