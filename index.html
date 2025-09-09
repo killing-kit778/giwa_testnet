@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Storage V2 DApp</title>
   <link rel="stylesheet" href="index.css" />
+  <!-- Reliable ethers.js UMD load (fixes loading issues) -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.2/dist/ethers.umd.min.js"></script>
 </head>
 <body>
@@ -15,7 +16,7 @@
       <p>Decentralized Storage Smart Contract on GIWA Sepolia Testnet</p>
     </header>
 
-    <div id="status">✅ Ethers.js loaded successfully!</div>
+    <div id="status">Loading...</div>
     <div id="network-warning">⚠️ Make sure you're connected to GIWA Sepolia Testnet!</div>
 
     <section class="card">
@@ -31,7 +32,7 @@
     <section class="card">
       <h2>🔐 Connect Your Wallet</h2>
       <div class="button-group">
-        <button onclick="connectWallet()">🦊 MetaMask / Rabby</button>
+        <button id="connect-btn" onclick="connectWallet()">🦊 MetaMask / Rabby</button>
         <button onclick="disconnectWallet()">❌ Disconnect</button>
       </div>
     </section>
